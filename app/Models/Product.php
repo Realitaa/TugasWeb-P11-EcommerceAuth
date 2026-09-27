@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -93,5 +94,35 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Scope a query to only include in-stock products.
+     *
+     * @param  Builder<Product>  $query
+     */
+    public function scopeInStock($query): void
+    {
+        $query->where('stock', '>', 0);
+    }
+
+    /**
+     * Scope a query to only include products with active discounts.
+     *
+     * @param  Builder<Product>  $query
+     */
+    public function scopeDiscounted($query): void
+    {
+        $query->where('discount_percentage', '>', 0);
+    }
+
+    /**
+     * Scope a query to filter products by minimum rating.
+     *
+     * @param  Builder<Product>  $query
+     */
+    public function scopePopular($query, float $minRating = 4.0): void
+    {
+        $query->where('rating', '>=', $minRating);
     }
 }

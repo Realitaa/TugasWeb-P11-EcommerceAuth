@@ -214,3 +214,33 @@ test('editor cannot delete a product', function () {
     $response->assertStatus(403);
     $this->assertDatabaseHas('products', ['id' => $product->id]);
 });
+
+test('product scopes filter correctly', function () {
+    $admin = User::factory()->admin()->create();
+    $category = Category::factory()->create();
+
+    $inStockProduct = Product::factory()->create([
+        'category_id' => $category->id,
+        'user_id' => $admin->id,
+        'stock' => 10,
+        'discount_percentage' => 15,
+        'rating' => 4.8,
+    ]);
+
+    $outOfStockProduct = Product::factory()->create([
+        'category_id' => $category->id,
+        'user_id' => $admin->id,
+        'stock' => 0,
+        'discount_percentage' => 0,
+        'rating' => 3.2,
+    ]);
+
+    expect(Product::inStock()->pluck('id'))->toContain($inStockProduct->id)
+        ->and(Product::inStock()->pluck('id'))->not->toContain($outOfStockProduct->id);
+
+    expect(Product::discounted()->pluck('id'))->toContain($inStockProduct->id)
+        ->and(Product::discounted()->pluck('id'))->not->toContain($outOfStockProduct->id);
+
+    expect(Product::popular(4.0)->pluck('id'))->toContain($inStockProduct->id)
+        ->and(Product::popular(4.0)->pluck('id'))->not->toContain($outOfStockProduct->id);
+});
