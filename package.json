@@ -15,5 +15,9 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "@tailwindcss/forms": "^0.5.11",
+        "alpinejs": "^3.17.4"
     }
 }
