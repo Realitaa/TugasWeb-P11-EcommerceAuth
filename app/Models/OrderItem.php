@@ -3,24 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Number;
 
 #[Fillable(['order_id', 'product_id', 'quantity', 'price'])]
 class OrderItem extends Model
 {
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'price' => 'unsignedBigInteger',
-            'quantity' => 'integer',
-        ];
-    }
+    use HasFactory;
 
     /**
      * Get the subtotal for this item.
@@ -28,6 +19,22 @@ class OrderItem extends Model
     public function getSubtotalAttribute(): float
     {
         return (float) ($this->quantity * (float) $this->price);
+    }
+
+    /**
+     * Get the formatted price in Rupiah.
+     */
+    public function getFormattedPriceAttribute(): string
+    {
+        return Number::currency($this->price);
+    }
+
+    /**
+     * Get the formatted subtotal in Rupiah.
+     */
+    public function getFormattedSubtotalAttribute(): string
+    {
+        return Number::currency($this->subtotal);
     }
 
     /**
